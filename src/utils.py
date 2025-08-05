@@ -4,6 +4,7 @@ import dill
 import numpy as np
 import pandas as pd
 from sklearn.metrics import r2_score,mean_absolute_error,mean_squared_error
+from sklearn.model_selection import GridSearchCV
 
 from src.exeption import CustomException
 from src.logger import logging
@@ -26,7 +27,8 @@ def evalute_models(X_train,y_train,X_test,y_test,models,params):
             model = list(models.values())[i]
             para=params[list(models.keys())[i]]
 
-            
+            gs= GridSearchCV(model,para,cv=3)
+            gs.fit(X_train,y_train)
 
             
             model.fit(X_train,y_train)
@@ -42,6 +44,14 @@ def evalute_models(X_train,y_train,X_test,y_test,models,params):
             report[list(models.keys())[i]] = test_model_score
 
         return report
+
+    except Exception as e:
+        raise CustomException(e, sys)
+    
+def load_object(file_path):
+    try:
+        with open(file_path, "rb") as file_obj:
+            return dill.load(file_obj)
 
     except Exception as e:
         raise CustomException(e, sys)
